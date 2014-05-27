@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- General information -->
-    <groupId>net.echinopsii.ariane</groupId>
-    <artifactId>net.echinopsii.ariane.installer</artifactId>
+    <groupId>net.echinopsii.ariane.community</groupId>
+    <artifactId>net.echinopsii.ariane.community.installer</artifactId>
     <version>0.1.0</version>
-    <name>Ariane Insaller</name>
+    <name>Ariane Community Installer</name>
     <packaging>pom</packaging>
 
     <modules>

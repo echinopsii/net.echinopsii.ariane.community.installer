@@ -3,15 +3,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.echinopsii.ariane</groupId>
-        <artifactId>net.echinopsii.ariane.installer</artifactId>
+        <groupId>net.echinopsii.ariane.community</groupId>
+        <artifactId>net.echinopsii.ariane.community.installer</artifactId>
         <version>0.1.0</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>net.echinopsii.ariane.installer</groupId>
-    <artifactId>net.echinopsii.ariane.installer.tools</artifactId>
-    <name>Ariane Installer Tools</name>
+    <groupId>net.echinopsii.ariane.community.installer</groupId>
+    <artifactId>net.echinopsii.ariane.community.installer.tools</artifactId>
+    <name>Ariane Community Installer Tools</name>
 
     <dependencies>
         <dependency>
