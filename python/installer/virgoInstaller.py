@@ -119,8 +119,8 @@ if __name__ == "__main__":
         classpath = virgoHomeDirAbsPath + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
                     virgoHomeDirAbsPath + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
                     virgoHomeDirAbsPath + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
-                    virgoHomeDirAbsPath + "/ariane/installer/lib/net.echinopsii.ariane.installer.tools-0.1.0.jar"
-        mainClass = "net.echinopsii.ariane.install.tools.sshcli"
+                    virgoHomeDirAbsPath + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
+        mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
         ssh = virgoProcessor.getUserRegionSSHParams()
         coreCmdsFilePath = virgoHomeDirAbsPath + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
         Popen([virgoHomeDirAbsPath+"/bin/startup.sh", "-clean"])
@@ -163,8 +163,8 @@ if __name__ == "__main__":
         classpath = virgoHomeDirAbsPath + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
                     virgoHomeDirAbsPath + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
                     virgoHomeDirAbsPath + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
-                    virgoHomeDirAbsPath + "/ariane/installer/lib/net.echinopsii.ariane.installer.tools-0.1.0.jar"
-        mainClass = "net.echinopsii.ariane.install.tools.sshcli"
+                    virgoHomeDirAbsPath + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
+        mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
         ssh = virgoProcessor.getUserRegionSSHParams()
         coreCmdsFilePath = virgoHomeDirAbsPath + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
         Popen([virgoHomeDirAbsPath+"/bin/startup.sh", "-clean"])

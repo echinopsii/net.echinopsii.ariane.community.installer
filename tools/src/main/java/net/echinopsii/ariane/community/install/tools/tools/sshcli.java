@@ -17,14 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.echinopsii.ariane.install.tools;
+package net.echinopsii.ariane.community.install.tools.tools;
 
 import org.apache.sshd.ClientChannel;
 import org.apache.sshd.ClientSession;
 import org.apache.sshd.SshClient;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.common.RuntimeSshException;
-import org.apache.sshd.common.util.NoCloseOutputStream;
 
 import java.io.*;
 
