@@ -1,5 +1,5 @@
-net.echinopsii.ariane.community.installer
-=========================================
+ariane.community.installer
+===========================
 
 Ariane Community Installer Module
 
