@@ -17,6 +17,7 @@
 from core.virgo.cuVirgoKernelRegionOSGIConsoleProcessor import virgoKernelRegionOSGIConsoleSyringe
 from core.virgo.cuVirgoUserRegionOSGIConsoleProcessor import virgoUserRegionOSGIConsoleSyringe
 from core.virgo.cuVirgoUsersProcessor import virgoUsersSyringe
+from core.virgo.cuContextDefaultProcessor import contextDefaultSyringe
 
 __author__ = 'mffrench'
 
@@ -30,6 +31,7 @@ class virgoProcessor:
 
         self.homeDirPath = homeDirPath
         self.configurationPath = homeDirPath + "/configuration/"
+        self.contextPath = self.configurationPath + "/Catalina/localhost"
         self.extrepo = homeDirPath + "/repository/ext/"
 
         self.virgoUsersSyringe = virgoUsersSyringe(self.configurationPath, self.silent)
@@ -41,10 +43,14 @@ class virgoProcessor:
         self.virgoUserRegionOSGIConsoleSyringe = virgoUserRegionOSGIConsoleSyringe(self.extrepo, self.silent)
         self.virgoUserRegionOSGIConsoleSyringe.shootBuilder()
 
+        self.contextDefaultSyringe = contextDefaultSyringe(self.contextPath, self.homeDirPath)
+
     def process(self):
+        self.contextDefaultSyringe.inject()
         self.virgoUsersSyringe.inject()
         self.virgoKernelRegionOSGIConsoleSyringe.inject()
         self.virgoUserRegionOSGIConsoleSyringe.inject()
+
         return self
 
     def getUserRegionSSHParams(self):

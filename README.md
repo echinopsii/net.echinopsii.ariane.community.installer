@@ -1,5 +1,5 @@
 ariane.community.installer
-===========================
+==========================
 
 Ariane Community Installer Module
 
