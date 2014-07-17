@@ -37,7 +37,7 @@ class cuContextDefaultProcessor(AConfUnit):
     def __init__(self, targetConfDir):
         self.confUnitName = "Virgo Context Default "
         self.confTemplatePath = os.path.abspath("resources/templates/virgo/context.xml.default.tpl")
-        self.confFinalPath = targetConfDir + "context.xml.default"
+        self.confFinalPath = targetConfDir + "/context.xml.default"
         virgoHome = cpVirgoHome()
         self.paramsDictionary = {
             virgoHome.name: virgoHome
