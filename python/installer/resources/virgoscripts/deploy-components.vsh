@@ -19,8 +19,8 @@ vsh:plan start net.echinopsii.ariane.community.core.portal 0.5.1
 vsh:install repository:plan/net.echinopsii.ariane.community.core.mapping/0.5.1
 vsh:plan start net.echinopsii.ariane.community.core.mapping 0.5.1
 
-vsh:install repository:plan/net.echinopsii.ariane.community.core.directory/0.5.0
-vsh:plan start net.echinopsii.ariane.community.core.directory 0.5.0
+vsh:install repository:plan/net.echinopsii.ariane.community.core.directory/0.5.1
+vsh:plan start net.echinopsii.ariane.community.core.directory 0.5.1
 
-vsh:install repository:plan/net.echinopsii.ariane.community.core.injector/0.5.0
-vsh:plan start net.echinopsii.ariane.community.core.injector 0.5.0
+vsh:install repository:plan/net.echinopsii.ariane.community.core.injector/0.5.1
+vsh:plan start net.echinopsii.ariane.community.core.injector 0.5.1
