@@ -123,13 +123,19 @@ if __name__ == "__main__":
         mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
         ssh = virgoProcessor.getUserRegionSSHParams()
         coreCmdsFilePath = virgoHomeDirAbsPath + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
-        Popen([virgoHomeDirAbsPath+"/bin/startup.sh", "-clean"])
+        Popen([virgoHomeDirAbsPath + "/bin/startup.sh", "-clean"])
         sleep(30)
         call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), coreCmdsFilePath])
-        for pluginCmdsFilePath in pluginProcessor.getDeployCommandsFiles():
-            call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), pluginCmdsFilePath])
         sleep(60)
-        call([virgoHomeDirAbsPath+"/bin/shutdown.sh"])
+        call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
+        if len(pluginProcessor.getDeployCommandsFiles()) != 0:
+            sleep(20)
+            Popen([virgoHomeDirAbsPath + "/bin/startup.sh"])
+            sleep(60)
+            for pluginCmdsFilePath in pluginProcessor.getDeployCommandsFiles():
+                call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), pluginCmdsFilePath])
+            sleep(60)
+            call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane deployment is done !\n")
 
@@ -167,13 +173,19 @@ if __name__ == "__main__":
         mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
         ssh = virgoProcessor.getUserRegionSSHParams()
         coreCmdsFilePath = virgoHomeDirAbsPath + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
-        Popen([virgoHomeDirAbsPath+"/bin/startup.sh", "-clean"])
-        sleep(60)
+        Popen([virgoHomeDirAbsPath + "/bin/startup.sh", "-clean"])
+        sleep(30)
         call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), coreCmdsFilePath])
-        for pluginCmdsFilePath in pluginProcessor.getDeployCommandsFiles():
-            call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), pluginCmdsFilePath])
         sleep(60)
-        call([virgoHomeDirAbsPath+"/bin/shutdown.sh"])
+        call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
+        if len(pluginProcessor.getDeployCommandsFiles()) != 0:
+            sleep(20)
+            Popen([virgoHomeDirAbsPath + "/bin/startup.sh"])
+            sleep(60)
+            for pluginCmdsFilePath in pluginProcessor.getDeployCommandsFiles():
+                call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), pluginCmdsFilePath])
+            sleep(60)
+            call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane deployment is done !\n")
 
