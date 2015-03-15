@@ -37,7 +37,7 @@ class AConfUnit:
         self.paramsDictionary[key].value = value
         if not self.paramsDictionary[key].isValid():
             self.paramsDictionary[key].value = None
-            raise Exception("Invalid value " + value + " for parameter " + key)
+            raise Exception("Invalid value " + str(value) + " for parameter " + key)
 
     @abstractmethod
     def process(self):
@@ -62,8 +62,8 @@ class AConfUnit:
                         if self.paramsDictionary[key].hide:
                             print("%-- [INFO] " + self.paramsDictionary[key].description + " : *****")
                         else:
-                            print("%-- [INFO] " + self.paramsDictionary[key].description + " : " + value)
-                        line = line.replace(key, value)
+                            print("%-- [INFO] " + self.paramsDictionary[key].description + " : " + str(value))
+                        line = line.replace(key, str(value))
                     else:
                         line = ""
             finalFile.write(line)

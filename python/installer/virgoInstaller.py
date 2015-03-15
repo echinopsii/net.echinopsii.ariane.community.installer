@@ -20,6 +20,7 @@ import argparse
 import os
 from subprocess import call, Popen
 from time import sleep
+from components.portal.portalProcessor import portalProcessor
 from plugins.pluginInstaller import pluginInstaller, pluginProcessor
 from core.virgo.virgoProcessor import virgoProcessor
 from components.idm.idmProcessor import idmProcessor
@@ -107,6 +108,7 @@ if __name__ == "__main__":
         print("\n%-- Configuration of ariane virgo with auto mode [" + virgoHomeDirAbsPath + "]")
         virgoProcessor = virgoProcessor(virgoHomeDirAbsPath, True).process()
         idmProcessor = idmProcessor(virgoHomeDirAbsPath, True).process()
+        portalProcess = portalProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, True).process()
         mappingProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, True).process()
         directoryProcessor = directoryProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, True).process()
         injectorProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, True).process()
@@ -157,6 +159,7 @@ if __name__ == "__main__":
         print("\n%-- Configuration of ariane distrib [" + virgoHomeDirAbsPath + "]")
         virgoProcessor = virgoProcessor(virgoHomeDirAbsPath, False).process()
         idmProcessor = idmProcessor(virgoHomeDirAbsPath, False).process()
+        portalProcess = portalProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, False).process()
         mappingProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, False).process()
         directoryProcessor = directoryProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, False).process()
         injectorProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, False).process()
