@@ -95,7 +95,6 @@ class pluginInstaller:
         if description is not None:
             # remove jar and plan in ariane-plugins repository
             for file in os.listdir(self.virgoHomePath + "/repository/ariane-plugins"):
-                print(pluginVersion)
                 if pluginVersion == "master.SNAPSHOT":
                     if fnmatch.fnmatch(file, "*." + pluginName + "*SNAPSHOT.*"):
                         os.remove(self.virgoHomePath + "/repository/ariane-plugins/" + file)
