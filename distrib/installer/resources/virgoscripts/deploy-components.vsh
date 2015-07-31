@@ -10,21 +10,9 @@ vsh:plan start org.hibernate 4.3.0
 vsh:install repository:plan/org.neo4j/2.1.2
 vsh:plan start org.neo4j 2.1.2
 
-vsh:install repository:plan/net.echinopsii.ariane.community.messaging/0.1.1.SNAPSHOT
-vsh:plan start net.echinopsii.ariane.community.messaging 0.1.1.SNAPSHOT
 
-vsh:install repository:plan/net.echinopsii.ariane.community.core.idm/0.4.2.SNAPSHOT
-vsh:plan start net.echinopsii.ariane.community.core.idm 0.4.2.SNAPSHOT
+vsh:install repository:plan/net.echinopsii.ariane.community./
+vsh:plan start net.echinopsii.ariane.community. 
 
-vsh:install repository:plan/net.echinopsii.ariane.community.core.portal/0.6.4.SNAPSHOT
-vsh:plan start net.echinopsii.ariane.community.core.portal 0.6.4.SNAPSHOT
-
-vsh:install repository:plan/net.echinopsii.ariane.community.core.mapping/0.6.4.SNAPSHOT
-vsh:plan start net.echinopsii.ariane.community.core.mapping 0.6.4.SNAPSHOT
-
-vsh:install repository:plan/net.echinopsii.ariane.community.core.directory/0.6.4.SNAPSHOT
-vsh:plan start net.echinopsii.ariane.community.core.directory 0.6.4.SNAPSHOT
-
-vsh:install repository:plan/net.echinopsii.ariane.community.core.injector/0.6.4.SNAPSHOT
-vsh:plan start net.echinopsii.ariane.community.core.injector 0.6.4.SNAPSHOT
-
+vsh:install repository:plan/net.echinopsii.ariane.community./
+vsh:plan start net.echinopsii.ariane.community. 
