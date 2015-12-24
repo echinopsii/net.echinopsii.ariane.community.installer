@@ -9,7 +9,7 @@ vsh:plan start org.hibernate 4.3.0
 
 vsh:install repository:plan/org.neo4j/2.1.2
 vsh:plan start org.neo4j 2.1.2
-{% for mod in modules -%}
+{% for mod in components -%}
 {% if mod.type == 'core' %}
 vsh:install repository:plan/net.echinopsii.ariane.community.core.{{mod.name}}/{{mod.version}}
 vsh:plan start net.echinopsii.ariane.community.core.{{mod.name}} {{mod.version}}
