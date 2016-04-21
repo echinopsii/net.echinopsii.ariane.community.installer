@@ -1,4 +1,4 @@
-# CC addon installer main
+# Ariane plugin installer main
 #
 # Copyright (C) 2014 Mathilde Ffrench
 #
@@ -156,12 +156,12 @@ class pluginProcessor:
         self.silent = silent
 
     def getDeployCommandsFiles(self):
-        list = []
+        ret_list = []
         for description in pluginInstaller.getInstalledPluginsDescription(self.virgoHomePath):
             for item in description.environmentItems:
                 if item.deployCmdFP is not None:
-                    list.append(item.deployCmdFP)
-        return list
+                    ret_list.append(item.deployCmdFP)
+        return ret_list
 
     def process(self):
         for description in pluginInstaller.getInstalledPluginsDescription(self.virgoHomePath):
