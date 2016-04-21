@@ -20,13 +20,9 @@ import argparse
 import os
 from subprocess import call, Popen
 from time import sleep
-from components.portal.portalProcessor import portalProcessor
+from components.componentInstaller import componentProcessor
 from plugins.pluginInstaller import pluginInstaller, pluginProcessor
 from core.virgo.virgoProcessor import virgoProcessor
-from components.idm.idmProcessor import idmProcessor
-from components.directory.directoryProcessor import directoryProcessor
-from components.injector.injectorProcessor import injectorProcessor
-from components.mapping.mappingProcessor import mappingProcessor
 
 __author__ = 'mffrench'
 
@@ -107,12 +103,14 @@ if __name__ == "__main__":
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--")
         print("\n%-- Configuration of ariane virgo with auto mode [" + virgoHomeDirAbsPath + "]")
         virgoProcessor = virgoProcessor(virgoHomeDirAbsPath, True).process()
-        idmProcessor = idmProcessor(virgoHomeDirAbsPath, True).process()
-        portalProcess = portalProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, True).process()
-        mappingProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, True).process()
-        directoryProcessor = directoryProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, True).process()
-        injectorProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, True).process()
-        pluginProcessor = pluginProcessor(virgoHomeDirAbsPath, directoryProcessor.directoryDBConfig, idmProcessor.idmDBConfig, True).process()
+        componentProcSgt = componentProcessor(virgoHomeDirAbsPath, True).process()
+        #idmProcSgt = idmProcessor(virgoHomeDirAbsPath, None, None, True).process()
+        #portalProcSgt = portalProcessor(virgoHomeDirAbsPath, None, idmProcSgt.idmDBConfig, True).process()
+        #mappingProcSgt = mappingProcessor(virgoHomeDirAbsPath,  None, idmProcSgt.idmDBConfig, True).process()
+        #directoryProcSgt = directoryProcessor(virgoHomeDirAbsPath, None, idmProcSgt.idmDBConfig, True).process()
+        #injectorProcSgt = injectorProcessor(virgoHomeDirAbsPath, None, idmProcSgt.idmDBConfig, True).process()
+        pluginProcSgt = pluginProcessor(virgoHomeDirAbsPath, componentProcSgt.directoryDBConfig,
+                                        componentProcSgt.idmDBConfig, True).process()
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane configuration is done !\n")
 
@@ -130,11 +128,11 @@ if __name__ == "__main__":
         call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), coreCmdsFilePath])
         sleep(60)
         call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
-        if len(pluginProcessor.getDeployCommandsFiles()) != 0:
+        if len(pluginProcSgt.getDeployCommandsFiles()) != 0:
             sleep(20)
             Popen([virgoHomeDirAbsPath + "/bin/startup.sh"])
             sleep(60)
-            for pluginCmdsFilePath in pluginProcessor.getDeployCommandsFiles():
+            for pluginCmdsFilePath in pluginProcSgt.getDeployCommandsFiles():
                 call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), pluginCmdsFilePath])
             sleep(60)
             call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
@@ -158,12 +156,14 @@ if __name__ == "__main__":
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--")
         print("\n%-- Configuration of ariane distrib [" + virgoHomeDirAbsPath + "]")
         virgoProcessor = virgoProcessor(virgoHomeDirAbsPath, False).process()
-        idmProcessor = idmProcessor(virgoHomeDirAbsPath, False).process()
-        portalProcess = portalProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, False).process()
-        mappingProcessor(idmProcessor.idmDBConfig, virgoHomeDirAbsPath, False).process()
-        directoryProcessor = directoryProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, False).process()
-        injectorProcessor(virgoHomeDirAbsPath, idmProcessor.idmDBConfig, False).process()
-        pluginProcessor = pluginProcessor(virgoHomeDirAbsPath, directoryProcessor.directoryDBConfig, idmProcessor.idmDBConfig, False).process()
+        componentProcSgt = componentProcessor(virgoHomeDirAbsPath, False).process()
+        #idmProcSgt = idmProcessor(virgoHomeDirAbsPath, None, None, True).process()
+        #portalProcSgt = portalProcessor(virgoHomeDirAbsPath, None, idmProcSgt.idmDBConfig, True).process()
+        #mappingProcSgt = mappingProcessor(virgoHomeDirAbsPath,  None, idmProcSgt.idmDBConfig, True).process()
+        #directoryProcSgt = directoryProcessor(virgoHomeDirAbsPath, None, idmProcSgt.idmDBConfig, True).process()
+        #injectorProcSgt = injectorProcessor(virgoHomeDirAbsPath, None, idmProcSgt.idmDBConfig, True).process()
+        pluginProcSgt = pluginProcessor(virgoHomeDirAbsPath, componentProcSgt.directoryDBConfig,
+                                        componentProcSgt.idmDBConfig, False).process()
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane configuration is done !\n")
 
@@ -181,11 +181,11 @@ if __name__ == "__main__":
         call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), coreCmdsFilePath])
         sleep(60)
         call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
-        if len(pluginProcessor.getDeployCommandsFiles()) != 0:
+        if len(pluginProcSgt.getDeployCommandsFiles()) != 0:
             sleep(20)
             Popen([virgoHomeDirAbsPath + "/bin/startup.sh"])
             sleep(60)
-            for pluginCmdsFilePath in pluginProcessor.getDeployCommandsFiles():
+            for pluginCmdsFilePath in pluginProcSgt.getDeployCommandsFiles():
                 call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'), ssh.get('password'), pluginCmdsFilePath])
             sleep(60)
             call([virgoHomeDirAbsPath + "/bin/shutdown.sh"])
