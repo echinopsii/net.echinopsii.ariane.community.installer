@@ -38,7 +38,7 @@ class AMySQLdbInit:
                 statement += line
             else:  # when you get a line ending in ';' then exec statement and reset for next statement
                 statement += line
-                #print("Executing SQL statement:\n%s" % (statement))
+                # print("Executing SQL statement:\n%s" % (statement))
                 try:
                     cursor.execute(statement)
                 except (DatabaseError, OperationalError, ProgrammingError) as err:
@@ -49,7 +49,7 @@ class AMySQLdbInit:
     @abstractmethod
     def process(self):
         try:
-            sqlScriptFile = open(self.sqlScriptFilePath, "r")
+            sql_script_file = open(self.sqlScriptFilePath, "r")
         except OSError as err:
             print("OS error: {0}".format(err))
             raise
@@ -62,4 +62,4 @@ class AMySQLdbInit:
             database=self.dbName
         )
         cursor = cnx.cursor()
-        AMySQLdbInit.exec_sql_file(cursor, sqlScriptFile)
+        AMySQLdbInit.exec_sql_file(cursor, sql_script_file)

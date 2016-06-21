@@ -20,39 +20,40 @@ import netifaces
 __author__ = 'mffrench'
 
 
-def getSystemNetworkInterfacesAndIPaddresses():
+def get_system_network_interfaces_and_ip_addresses():
     ifaces = netifaces.interfaces()
-    #print("interfaces : " + ",".join(ifaces))
+    # print("interfaces : " + ",".join(ifaces))
     ret = []
     for iface in ifaces:
-        ifaceAddressList = []
+        iface_address_list = []
         addresses = netifaces.ifaddresses(iface)[netifaces.AF_INET]
-        #print("addresses for interfaces " + iface + " : " + ",".join(str(d) for d in addresses))
+        # print("addresses for interfaces " + iface + " : " + ",".join(str(d) for d in addresses))
         for address in addresses:
-            ipAddress = address.get('addr')
-            ifaceAddressList.append([iface, ipAddress])
-            #print("ifaceAddressList : " + str(",".join(str(d) for d in ifaceAddressList)))
+            ip_address = address.get('addr')
+            iface_address_list.append([iface, ip_address])
+            # print("ifaceAddressList : " + str(",".join(str(d) for d in ifaceAddressList)))
 
-        ret.extend(ifaceAddressList)
-        #print("ret : " + ",".join(str(d) for d in ret))
+        ret.extend(iface_address_list)
+        # print("ret : " + ",".join(str(d) for d in ret))
     return ret
 
 
-def isSystemNetworkAddress(address):
+def is_system_network_address(address):
     pass
 
 
-def printSystemNetworkInterfaces(availableInterfacesAndIPAddresses):
+def print_system_network_interfaces(available_interfaces_and_ip_addresses):
     print("Available system network interfaces and addresses :\n")
     print('{:20} {:20}'.format("interface", "address"))
     print('{:20} {:20}'.format("---------", "-------"))
-    for ifAndAddr in availableInterfacesAndIPAddresses:
+    for ifAndAddr in available_interfaces_and_ip_addresses:
         print('{:20} {:20}'.format(ifAndAddr[0], ifAndAddr[1]))
     print('{:20} {:20}\n'.format("---------", "-------"))
 
-def isPortAvailable(ipAddress, port):
+
+def is_port_available(ip_address, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((ipAddress,port))
+    result = sock.connect_ex((ip_address,port))
     sock.close()
     if result == 0:
         return False

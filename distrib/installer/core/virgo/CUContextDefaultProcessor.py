@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import json
 import os
 from tools.AConfParamNotNone import AConfParamNotNone
 from tools.AConfUnit import AConfUnit
@@ -22,7 +21,7 @@ from tools.AConfUnit import AConfUnit
 __author__ = 'mffrench'
 
 
-class cpVirgoHome(AConfParamNotNone):
+class CPVirgoHome(AConfParamNotNone):
 
     name = "##KERNEL_HOME"
     description = "Virgo Home"
@@ -31,24 +30,39 @@ class cpVirgoHome(AConfParamNotNone):
     def __init__(self):
         self.value = None
 
+    def is_valid(self):
+        return super(CPVirgoHome, self).is_valid()
 
-class cuContextDefaultProcessor(AConfUnit):
 
-    def __init__(self, targetConfDir):
+class CUContextDefaultProcessor(AConfUnit):
+
+    def __init__(self, target_conf_dir):
         self.confUnitName = "Virgo Context Default "
         self.confTemplatePath = os.path.abspath("resources/templates/virgo/context.xml.default.tpl")
-        self.confFinalPath = targetConfDir + "/context.xml.default"
-        virgoHome = cpVirgoHome()
+        self.confFinalPath = target_conf_dir + "/context.xml.default"
+        virgo_home = CPVirgoHome()
         self.paramsDictionary = {
-            virgoHome.name: virgoHome
+            virgo_home.name: virgo_home
         }
 
+    def process(self):
+        return super(CUContextDefaultProcessor, self).process()
 
-class contextDefaultSyringe:
+    def get_param_from_key(self, key):
+        return super(CUContextDefaultProcessor, self).get_param_from_key(key)
 
-    def __init__(self, targetConfDif, virgoHome):
-        self.contextDefaultCUProcessor = cuContextDefaultProcessor(targetConfDif)
-        self.contextDefaultCUProcessor.setKeyParamValue(cpVirgoHome.name, virgoHome)
+    def get_params_keys_list(self):
+        return super(CUContextDefaultProcessor, self).get_params_keys_list()
+
+    def set_key_param_value(self, key, value):
+        return super(CUContextDefaultProcessor, self).set_key_param_value(key, value)
+
+
+class ContextDefaultSyringe:
+
+    def __init__(self, target_conf_dir, virgo_home):
+        self.contextDefaultCUProcessor = CUContextDefaultProcessor(target_conf_dir)
+        self.contextDefaultCUProcessor.set_key_param_value(CPVirgoHome.name, virgo_home)
 
     def inject(self):
         self.contextDefaultCUProcessor.process()

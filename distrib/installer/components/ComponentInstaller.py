@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
-from tools.ComponentHook import componentHook
+from tools.ComponentHook import ComponentHook
 
 __author__ = 'mffrench'
 
-class componentInstaller:
+class ComponentInstaller:
     def __init__(self, virgo_home_path):
         self.virgo_home_path = virgo_home_path
 
@@ -30,25 +30,26 @@ class componentInstaller:
             if os.path.isdir(virgo_home_path + "/ariane/installer/components/" + file) and \
                     os.path.exists(virgo_home_path + "/ariane/installer/components/" + file +
                                    "/arianecomponenthook.json"):
-                hook = componentHook(virgo_home_path + "/ariane/installer/components/" + file +
-                              "/arianecomponenthook.json")
+                hook = ComponentHook(virgo_home_path + "/ariane/installer/components/" + file +
+                                     "/arianecomponenthook.json")
                 hooks[hook.order] = hook
         return hooks
 
-class componentProcessor:
-    def __init__(self, virgo_home_path, silent):
+class ComponentProcessor:
+    def __init__(self, virgo_home_path, bus_processor, silent):
         self.virgo_home_path = virgo_home_path
         self.silent = silent
         self.directoryDBConfig = None
         self.idmDBConfig = None
+        self.busProcessor = bus_processor
 
     def process(self):
-        for hook in componentInstaller.get_installed_components_hook(self.virgo_home_path):
+        for hook in ComponentInstaller.get_installed_components_hook(self.virgo_home_path):
             if hook is not None:
                 imported = getattr(__import__(hook.hookPackage + "." + hook.hookModule, fromlist=[hook.hookClass]),
                                    hook.hookClass)
-                imported_sgt = imported(self.virgo_home_path, self.directoryDBConfig, self.idmDBConfig, self.silent).\
-                    process()
+                imported_sgt = imported(self.virgo_home_path, self.directoryDBConfig, self.idmDBConfig,
+                                        self.busProcessor, self.silent).process()
                 self.directoryDBConfig = imported_sgt.directoryDBConfig
                 self.idmDBConfig = imported_sgt.idmDBConfig
         return self

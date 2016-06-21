@@ -26,7 +26,7 @@ __author__ = 'mffrench'
 class AConfParamNotNone:
 
     @abstractmethod
-    def isValid(self):
+    def is_valid(self):
         if self.value is None:
             print(self.description + " is not defined !", file=sys.stderr)
             return False

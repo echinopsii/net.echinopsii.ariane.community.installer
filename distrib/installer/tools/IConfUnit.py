@@ -20,19 +20,19 @@ __author__ = 'mffrench'
 
 
 class IConfUnit(zope.interface.Interface):
-    """CC configuration unit interface"""
+    """Ariane configuration unit interface"""
     confUnitName = zope.interface.Attribute("""the CC configuration unit name""")
     confTemplatePath = zope.interface.Attribute("""the CC configuration template to change""")
     confFinalPath = zope.interface.Attribute("""the CC final configuration to generate""")
     paramsDictionary = zope.interface.Attribute("""the CC configuration parameters dictionary""")
 
-    def getParamsKeysList(self):
+    def get_params_keys_list(self):
         """Get the configuration parameters keys list of this configuration unit"""
 
-    def getParamFromKey(self, key):
+    def get_param_from_key(self, key):
         """Get the configuration parameter from its key"""
 
-    def setKeyParamValue(self, key, param):
+    def set_key_param_value(self, key, param):
         """Set the value of param defined by its key. If the value is invalid an exception is raised"""
 
     def process(self):

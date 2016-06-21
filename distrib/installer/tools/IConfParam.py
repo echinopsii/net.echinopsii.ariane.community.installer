@@ -20,14 +20,14 @@ __author__ = 'mffrench'
 
 
 class IConfParam(Interface):
-    """CC configuration parameter interface"""
+    """Ariane configuration parameter interface"""
     name = Attribute("""The CC parameter name which must be pushed into final configuration file.
                                        The param name must same as the templated configuration param. """)
     value = Attribute("""The CC parameter value.""")
     description = Attribute("""The CC parameter description.""")
     hide = Attribute("""Tell if parameter value must be hided or not""")
 
-    def isValid(self):
+    def is_valid(self):
         """Check if the value of this configuration is valid"""
 
 

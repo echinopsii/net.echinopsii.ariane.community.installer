@@ -20,7 +20,7 @@ __author__ = 'mffrench'
 
 
 class ISQLdbInit(zope.interface.Interface):
-    """CC SQL database init interface"""
+    """Ariane SQL database init interface"""
     dbServerHost = zope.interface.Attribute("""The database server host.""")
     dbServerPort = zope.interface.Attribute("""The database server port.""")
     dbServerUser = zope.interface.Attribute("""The database server user name.""")

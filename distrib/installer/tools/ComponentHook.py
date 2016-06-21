@@ -20,7 +20,7 @@ import os
 __author__ = 'mffrench'
 
 
-class componentHook:
+class ComponentHook:
 
     def __init__(self, component_hook_path):
         if os.path.exists(component_hook_path) and os.path.isfile(component_hook_path):
