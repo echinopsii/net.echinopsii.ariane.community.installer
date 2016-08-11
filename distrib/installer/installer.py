@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import argparse
+import inspect
 import json
 import os
 from subprocess import call, Popen
@@ -65,31 +66,11 @@ def ariane_license(ariane_version, silent):
         print("%-- See http://www.gnu.org/licenses/ to know more about AGPLv3 license.\n")
 
 
-class VirgoHomeDir(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        prospective_dir = values[0]
-        if not os.path.isdir(prospective_dir):
-            raise argparse.ArgumentTypeError("virgoHomeDir:{0} is not a valid path".format(prospective_dir))
-        if os.access(prospective_dir, os.R_OK):
-            if os.access(prospective_dir, os.W_OK):
-                if os.path.exists(prospective_dir +
-                                  "/lib/org.eclipse.virgo.kernel.equinox.extensions_3.6.2.RELEASE.jar"):
-                    setattr(namespace, self.dest, prospective_dir)
-                else:
-                    raise argparse.ArgumentTypeError("virgoHomeDir:{0} is not a valid virgo home dir".
-                                                     format(prospective_dir))
-            else:
-                raise argparse.ArgumentTypeError("virgoHomeDir:{0} is not a writable dir".format(prospective_dir))
-        else:
-            raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
-
-
 def parse():
-    parser = argparse.ArgumentParser(description='Ariane virgo installer')
+    parser = argparse.ArgumentParser(description='Ariane installer')
     group = parser.add_mutually_exclusive_group(required=True)
-    parser.add_argument('virgoHome', help='Specify virgo home directory path', nargs=1, action=VirgoHomeDir)
     group.add_argument('-a', '--autoconfigure', help='Configure Ariane environment with predefined value in '
-                                                     '$VIRGO_HOME/ariane/installer/resources/configvalues',
+                                                     '$INSTALL_HOME/ariane/installer/resources/configvalues',
                        action='store_true')
     group.add_argument('-c', '--configure', help='Configure Ariane environment', action='store_true')
     # todo: special action to validate the provided packages to install
@@ -104,25 +85,31 @@ def parse():
 if __name__ == "__main__":
     args = parse()
 
-    virgo_home_dir_abs_path = os.path.abspath(args.virgoHome)
+    home_dir_abs_path = str(os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe())
+    )).split("/ariane/installer")[0])
     pwd = os.getcwd()
-    os.chdir(virgo_home_dir_abs_path + "/ariane/installer")
+    os.chdir(home_dir_abs_path + "/ariane/installer")
 
-    ctx_json = open(virgo_home_dir_abs_path + "/ariane/id.json")
+    ctx_json = open(home_dir_abs_path + "/ariane/id.json")
     ctx_values = json.load(ctx_json)
     ctx_json.close()
 
     welcome()
 
+    virgoProcessor = None
     if args.autoconfigure:
         ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--")
-        print("\n%-- Configuration of ariane virgo with auto mode [" + virgo_home_dir_abs_path + "]")
-        virgoProcessor = VirgoProcessor(virgo_home_dir_abs_path, True).process()
-        busProcessor = BusProcessor(ctx_values["version"], True)
-        componentProcSgt = ComponentProcessor(virgo_home_dir_abs_path, busProcessor, True).process()
-        pluginProcSgt = PluginProcessor(virgo_home_dir_abs_path, componentProcSgt.directoryDBConfig,
+        print("\n%-- Configuration of ariane with auto mode [" + home_dir_abs_path + "]")
+        if ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt":
+            virgoProcessor = VirgoProcessor(home_dir_abs_path, True).process()
+        busProcessor = BusProcessor(ctx_values["version"], ctx_values['deployment_type'], True)
+        componentProcSgt = ComponentProcessor(home_dir_abs_path, busProcessor,
+                                              ctx_values['deployment_type'], True).process()
+        pluginProcSgt = PluginProcessor(home_dir_abs_path, ctx_values['deployment_type'],
+                                        componentProcSgt.directoryDBConfig,
                                         componentProcSgt.idmDBConfig, True).process()
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
@@ -131,29 +118,30 @@ if __name__ == "__main__":
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--")
         print("\n%-- Ariane deployment")
-        classpath = virgo_home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
-            virgo_home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
-            virgo_home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
-            virgo_home_dir_abs_path + \
-            "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
-        mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
-        ssh = virgoProcessor.get_user_region_ssh_params()
-        core_cmds_file_path = virgo_home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
-        Popen([virgo_home_dir_abs_path + "/bin/startup.sh", "-clean"])
-        sleep(30)
-        call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
-              ssh.get('password'), core_cmds_file_path])
-        sleep(60)
-        call([virgo_home_dir_abs_path + "/bin/shutdown.sh"])
-        if len(pluginProcSgt.get_deploy_commands_files()) != 0:
-            sleep(20)
-            Popen([virgo_home_dir_abs_path + "/bin/startup.sh"])
+        if virgoProcessor is not None:
+            classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
+                home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
+                home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
+                home_dir_abs_path + \
+                "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
+            mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
+            ssh = virgoProcessor.get_user_region_ssh_params()
+            core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
+            Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
+            sleep(30)
+            call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
+                  ssh.get('password'), core_cmds_file_path])
             sleep(60)
-            for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
-                call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
-                      ssh.get('password'), pluginCmdsFilePath])
-            sleep(60)
-            call([virgo_home_dir_abs_path + "/bin/shutdown.sh"])
+            call([home_dir_abs_path + "/bin/shutdown.sh"])
+            if len(pluginProcSgt.get_deploy_commands_files()) != 0:
+                sleep(20)
+                Popen([home_dir_abs_path + "/bin/startup.sh"])
+                sleep(60)
+                for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
+                    call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
+                          ssh.get('password'), pluginCmdsFilePath])
+                sleep(60)
+                call([home_dir_abs_path + "/bin/shutdown.sh"])
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane deployment is done !\n")
@@ -164,7 +152,7 @@ if __name__ == "__main__":
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Check if provided Ariane plugin package(s) is/are valid :")
         for plugin in args.check:
-            ret = PluginInstaller(virgo_home_dir_abs_path).check_plugin_package(plugin)
+            ret = PluginInstaller(home_dir_abs_path).check_plugin_package(plugin)
             if ret is True:
                 print("\n%-- Ariane plugin package " + plugin + " is valid !")
             else:
@@ -176,11 +164,14 @@ if __name__ == "__main__":
         ariane_license(ctx_values["version"], False)
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--")
-        print("\n%-- Configuration of ariane distrib [" + virgo_home_dir_abs_path + "]")
-        virgoProcessor = VirgoProcessor(virgo_home_dir_abs_path, False).process()
-        busProcessor = BusProcessor(ctx_values["version"], False)
-        componentProcSgt = ComponentProcessor(virgo_home_dir_abs_path, busProcessor, False).process()
-        pluginProcSgt = PluginProcessor(virgo_home_dir_abs_path, componentProcSgt.directoryDBConfig,
+        print("\n%-- Configuration of ariane distrib [" + home_dir_abs_path + "]")
+        if ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt":
+            virgoProcessor = VirgoProcessor(home_dir_abs_path, False).process()
+        busProcessor = BusProcessor(ctx_values["version"], ctx_values['deployment_type'], False)
+        componentProcSgt = ComponentProcessor(home_dir_abs_path, busProcessor,
+                                              ctx_values['deployment_type'], False).process()
+        pluginProcSgt = PluginProcessor(home_dir_abs_path, ctx_values['deployment_type'],
+                                        componentProcSgt.directoryDBConfig,
                                         componentProcSgt.idmDBConfig, False).process()
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
@@ -189,28 +180,28 @@ if __name__ == "__main__":
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--")
         print("\n%-- Ariane deployment")
-        classpath = virgo_home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
-            virgo_home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
-            virgo_home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
-            virgo_home_dir_abs_path + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
+        classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
+            home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
+            home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
+            home_dir_abs_path + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
         mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
         ssh = virgoProcessor.get_user_region_ssh_params()
-        core_cmds_file_path = virgo_home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
-        Popen([virgo_home_dir_abs_path + "/bin/startup.sh", "-clean"])
+        core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
+        Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
         sleep(30)
         call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
               ssh.get('password'), core_cmds_file_path])
         sleep(60)
-        call([virgo_home_dir_abs_path + "/bin/shutdown.sh"])
+        call([home_dir_abs_path + "/bin/shutdown.sh"])
         if len(pluginProcSgt.get_deploy_commands_files()) != 0:
             sleep(20)
-            Popen([virgo_home_dir_abs_path + "/bin/startup.sh"])
+            Popen([home_dir_abs_path + "/bin/startup.sh"])
             sleep(60)
             for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
                 call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
                       ssh.get('password'), pluginCmdsFilePath])
             sleep(60)
-            call([virgo_home_dir_abs_path + "/bin/shutdown.sh"])
+            call([home_dir_abs_path + "/bin/shutdown.sh"])
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane deployment is done !\n")
@@ -221,7 +212,7 @@ if __name__ == "__main__":
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Install provided Ariane plugin package(s) is/are valid :")
         for plugin in args.install:
-            PluginInstaller(virgo_home_dir_abs_path).install_plugin_package(plugin)
+            PluginInstaller(home_dir_abs_path).install_plugin_package(plugin)
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
 
@@ -229,8 +220,8 @@ if __name__ == "__main__":
         ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
-        print("%-- List of installed Ariane plugin(s) in " + virgo_home_dir_abs_path + " :")
-        PluginInstaller(virgo_home_dir_abs_path).list_installed_plugin_packages()
+        print("%-- List of installed Ariane plugin(s) in " + home_dir_abs_path + " :")
+        PluginInstaller(home_dir_abs_path).list_installed_plugin_packages()
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
 
@@ -239,7 +230,7 @@ if __name__ == "__main__":
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Uninstall Ariane plugin :")
-        PluginInstaller(virgo_home_dir_abs_path).uninstall_plugin_package(args.uninstall[0], args.uninstall[1])
+        PluginInstaller(home_dir_abs_path).uninstall_plugin_package(args.uninstall[0], args.uninstall[1])
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
 

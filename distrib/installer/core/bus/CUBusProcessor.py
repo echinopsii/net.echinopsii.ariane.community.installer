@@ -288,6 +288,12 @@ class BusSyringe:
                                 mom_host_port_default_ui = "[default - " + mom_host_port_default + "] "
                                 mom_host_port = int(mom_host_port_default)
                                 mom_provider_is_valid = True
+                            elif mom_provider_code is None or not mom_provider_code:
+                                mom_provider = "net.echinopsii.ariane.community.messaging.nats.Client"
+                                mom_host_port_default = str(4222)
+                                mom_host_port_default_ui = "[default - " + mom_host_port_default + "] "
+                                mom_host_port = int(mom_host_port_default)
+                                mom_provider_is_valid = True
                             else:
                                 print("%-- !! Invalid Bus provider (" + str(mom_host_port) +
                                       ") : you must enter 1 (for NATS) or 2 (for RabbitMQ)")

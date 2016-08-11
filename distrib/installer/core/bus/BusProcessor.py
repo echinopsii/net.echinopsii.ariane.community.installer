@@ -21,11 +21,13 @@ __author__ = 'mffrench'
 
 class BusProcessor:
 
-    def __init__(self, dist_version, silent):
-        print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--\n")
+    def __init__(self, dist_version, dist_dep_type, silent):
+        print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
+              "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Bus configuration : \n")
         self.silent = silent
         self.dist_version = dist_version
+        self.dist_dep_type = dist_dep_type
 
         self.busSyringe = BusSyringe(self.dist_version, self.silent)
         self.busSyringe.shoot_builder()

@@ -165,23 +165,24 @@ class PluginInstaller:
 
 class PluginProcessor:
 
-    def __init__(self, virgo_home_path, directory_db_config, idm_db_config, silent):
-        self.virgoHomePath = virgo_home_path
+    def __init__(self, home_path, dist_dep_type, directory_db_config, idm_db_config, silent):
+        self.homePath = home_path
+        self.dist_dep_type = dist_dep_type
         self.directoryDBConfig = directory_db_config
         self.idmDBConfig = idm_db_config
         self.silent = silent
 
     def get_deploy_commands_files(self):
         ret_list = []
-        for description in PluginInstaller.get_installed_plugins_description(self.virgoHomePath):
+        for description in PluginInstaller.get_installed_plugins_description(self.homePath):
             for item in description.environmentItems:
                 if item.deployCmdFP is not None:
                     ret_list.append(item.deployCmdFP)
         return ret_list
 
     def process(self):
-        for description in PluginInstaller.get_installed_plugins_description(self.virgoHomePath):
+        for description in PluginInstaller.get_installed_plugins_description(self.homePath):
             imported = getattr(__import__(description.hookPackage + "." + description.hookModule,
                                           fromlist=[description.hookClass]), description.hookClass)
-            imported(self.virgoHomePath, self.directoryDBConfig, self.idmDBConfig, self.silent).process()
+            imported(self.homePath, self.directoryDBConfig, self.idmDBConfig, self.silent).process()
         return self

@@ -20,8 +20,8 @@ from tools.ComponentHook import ComponentHook
 __author__ = 'mffrench'
 
 class ComponentInstaller:
-    def __init__(self, virgo_home_path):
-        self.virgo_home_path = virgo_home_path
+    def __init__(self, home_path):
+        self.home_path = home_path
 
     @staticmethod
     def get_installed_components_hook(virgo_home_path):
@@ -36,19 +36,20 @@ class ComponentInstaller:
         return hooks
 
 class ComponentProcessor:
-    def __init__(self, virgo_home_path, bus_processor, silent):
-        self.virgo_home_path = virgo_home_path
+    def __init__(self, home_path, bus_processor, dist_dep_type, silent):
+        self.home_path = home_path
         self.silent = silent
         self.directoryDBConfig = None
         self.idmDBConfig = None
         self.busProcessor = bus_processor
+        self.dist_dep_type = dist_dep_type
 
     def process(self):
-        for hook in ComponentInstaller.get_installed_components_hook(self.virgo_home_path):
+        for hook in ComponentInstaller.get_installed_components_hook(self.home_path):
             if hook is not None:
                 imported = getattr(__import__(hook.hookPackage + "." + hook.hookModule, fromlist=[hook.hookClass]),
                                    hook.hookClass)
-                imported_sgt = imported(self.virgo_home_path, self.directoryDBConfig, self.idmDBConfig,
+                imported_sgt = imported(self.home_path, self.directoryDBConfig, self.idmDBConfig,
                                         self.busProcessor, self.silent).process()
                 self.directoryDBConfig = imported_sgt.directoryDBConfig
                 self.idmDBConfig = imported_sgt.idmDBConfig
