@@ -38,9 +38,10 @@ def welcome():
         print(line, end='')
 
 
-def ariane_license(silent):
+def ariane_license(ariane_version, silent):
     print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
           "%--%--%--%--%--%--%--%--\n")
+    print("%-- Ariane " + ariane_version + " .\n")
     print("%-- By using this software you're agree with AGPLv3 license agreement.\n")
     if not silent:
         read_license = input("%-- >> Do you want to read the AGPLv3 license agreement (yes or no - default no) ? ")
@@ -107,14 +108,14 @@ if __name__ == "__main__":
     pwd = os.getcwd()
     os.chdir(virgo_home_dir_abs_path + "/ariane/installer")
 
-    ctx_json = open(virgo_home_dir_abs_path + "/ariane/installer/ariane.json")
+    ctx_json = open(virgo_home_dir_abs_path + "/ariane/id.json")
     ctx_values = json.load(ctx_json)
     ctx_json.close()
 
     welcome()
 
     if args.autoconfigure:
-        ariane_license(True)
+        ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--")
         print("\n%-- Configuration of ariane virgo with auto mode [" + virgo_home_dir_abs_path + "]")
@@ -158,7 +159,7 @@ if __name__ == "__main__":
         print("%-- Ariane deployment is done !\n")
 
     elif args.check:
-        ariane_license(True)
+        ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Check if provided Ariane plugin package(s) is/are valid :")
@@ -172,7 +173,7 @@ if __name__ == "__main__":
               "%--%--%--%--%--%--%--%--%--\n")
 
     elif args.configure:
-        ariane_license(False)
+        ariane_license(ctx_values["version"], False)
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--")
         print("\n%-- Configuration of ariane distrib [" + virgo_home_dir_abs_path + "]")
@@ -215,7 +216,7 @@ if __name__ == "__main__":
         print("%-- Ariane deployment is done !\n")
 
     elif args.install is not None:
-        ariane_license(True)
+        ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Install provided Ariane plugin package(s) is/are valid :")
@@ -225,7 +226,7 @@ if __name__ == "__main__":
               "%--%--%--%--%--%--%--%--%--\n")
 
     elif args.list:
-        ariane_license(True)
+        ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- List of installed Ariane plugin(s) in " + virgo_home_dir_abs_path + " :")
@@ -234,7 +235,7 @@ if __name__ == "__main__":
               "%--%--%--%--%--%--%--%--%--\n")
 
     elif args.uninstall is not None:
-        ariane_license(True)
+        ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Uninstall Ariane plugin :")
