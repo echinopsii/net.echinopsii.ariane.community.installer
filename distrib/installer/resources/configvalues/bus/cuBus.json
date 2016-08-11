@@ -1,7 +1,7 @@
 {
-    "##MCLI_IMPL": "net.echinopsii.ariane.community.messaging.rabbitmq.Client",
+    "##MCLI_IMPL": "net.echinopsii.ariane.community.messaging.nats.Client",
     "##MHOST_FQDN": "localhost",
-    "##MHOST_PORT": "5672",
+    "##MHOST_PORT": "4222",
     "##MHOST_USER": "ariane",
     "##MHOST_PASSWD": "password",
     "##MHOST_RBQ_VHOST": "/ariane",

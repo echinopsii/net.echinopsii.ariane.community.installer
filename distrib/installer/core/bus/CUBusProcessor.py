@@ -27,7 +27,7 @@ __author__ = 'mffrench'
 class CPBusMoMProvider(AConfParamNotNone):
 
     name = "##MCLI_IMPL"
-    description = "Ariane MoM provider type (RabbitMQ or NATS)"
+    description = "Ariane MoM provider type (NATS or RabbitMQ)"
     hide = False
 
     def __init__(self):
@@ -236,8 +236,8 @@ class BusSyringe:
                 elif mom_provider_default == "net.echinopsii.ariane.community.messaging.nats.Client":
                     mom_provider_default_ui = "[default - NATS] "
                 else:
-                    mom_provider_default_ui = "[default - RabbitMQ] "
-                    mom_provider_default = "net.echinopsii.ariane.community.messaging.rabbitmq.Client"
+                    mom_provider_default_ui = "[default - NATS] "
+                    mom_provider_default = "net.echinopsii.ariane.community.messaging.nats.Client"
                 mom_provider = mom_provider_default
 
                 mom_host_fqdn_default = self.busCUValues[CPBusMoMHostFQDN.name]
@@ -274,17 +274,23 @@ class BusSyringe:
                         mom_provider_is_valid = False
                         while not mom_provider_is_valid:
                             mom_provider_code = input("%-- >> Define Bus provider type "
-                                                      "(enter 1 for RabbitMQ or 2 for NATS) " + mom_provider_default_ui
+                                                      "(enter 1 for NATS or 2 for RabbitMQ) " + mom_provider_default_ui
                                                       + ": ")
                             if mom_provider_code == "1":
-                                mom_provider = "net.echinopsii.ariane.community.messaging.rabbitmq.Client"
+                                mom_provider = "net.echinopsii.ariane.community.messaging.nats.Client"
+                                mom_host_port_default = str(4222)
+                                mom_host_port_default_ui = "[default - " + mom_host_port_default + "] "
+                                mom_host_port = int(mom_host_port_default)
                                 mom_provider_is_valid = True
                             elif mom_provider_code == "2":
-                                mom_provider = "net.echinopsii.ariane.community.messaging.nats.Client"
+                                mom_provider = "net.echinopsii.ariane.community.messaging.rabbitmq.Client"
+                                mom_host_port_default = str(5672)
+                                mom_host_port_default_ui = "[default - " + mom_host_port_default + "] "
+                                mom_host_port = int(mom_host_port_default)
                                 mom_provider_is_valid = True
                             else:
                                 print("%-- !! Invalid Bus provider (" + str(mom_host_port) +
-                                      ") : you must enter 1 (for RabbitMQ) or 2 (for NATS)")
+                                      ") : you must enter 1 (for NATS) or 2 (for RabbitMQ)")
                         mom_provider_default = mom_provider
 
                     if not self.silent:
