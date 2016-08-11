@@ -49,7 +49,7 @@ class ComponentProcessor:
             if hook is not None:
                 imported = getattr(__import__(hook.hookPackage + "." + hook.hookModule, fromlist=[hook.hookClass]),
                                    hook.hookClass)
-                imported_sgt = imported(self.home_path, self.directoryDBConfig, self.idmDBConfig,
+                imported_sgt = imported(self.home_path, self.dist_dep_type, self.directoryDBConfig, self.idmDBConfig,
                                         self.busProcessor, self.silent).process()
                 self.directoryDBConfig = imported_sgt.directoryDBConfig
                 self.idmDBConfig = imported_sgt.idmDBConfig
