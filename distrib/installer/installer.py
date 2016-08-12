@@ -42,7 +42,7 @@ def welcome():
 def ariane_license(ariane_version, silent):
     print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
           "%--%--%--%--%--%--%--%--\n")
-    print("%-- Ariane " + ariane_version + " .\n")
+    print("%-- Version: " + ariane_version + "\n")
     print("%-- By using this software you're agree with AGPLv3 license agreement.\n")
     if not silent:
         read_license = input("%-- >> Do you want to read the AGPLv3 license agreement (yes or no - default no) ? ")

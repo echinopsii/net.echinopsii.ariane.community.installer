@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
+import os
+import shutil
 from zope.interface import implementer
 from tools.IConfUnit import IConfUnit
 
@@ -42,8 +44,16 @@ class AConfUnit:
     @abstractmethod
     def process(self):
         print("\n%-- [INFO] " + self.confUnitName + " configuration processing is starting")
+        new_template_file_path = None
+        if self.confTemplatePath == self.confFinalPath:
+            new_template_file_path = self.confFinalPath + ".tpl"
+            shutil.copy(self.confFinalPath, new_template_file_path)
+
         try:
-            template_file = open(self.confTemplatePath, "r")
+            if new_template_file_path is not None:
+                template_file = open(new_template_file_path, "r")
+            else:
+                template_file = open(self.confTemplatePath, "r")
         except OSError as err:
             print("OS error: {0}".format(err))
             raise
@@ -67,5 +77,11 @@ class AConfUnit:
                     else:
                         line = ""
             final_file.write(line)
+
+        template_file.close()
+        final_file.close()
+
+        if new_template_file_path is not None:
+            os.remove(new_template_file_path)
 
         print("%-- [INFO] " + self.confUnitName + " configuration processing has been done successfully\n")
