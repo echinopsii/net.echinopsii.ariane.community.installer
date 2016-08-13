@@ -115,10 +115,10 @@ if __name__ == "__main__":
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane configuration is done !\n")
 
-        print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-              "%--%--%--%--%--%--%--%--%--")
-        print("\n%-- Ariane deployment")
         if virgoProcessor is not None:
+            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
+                  "%--%--%--%--%--%--%--%--%--%--%--")
+            print("\n%-- Ariane deployment")
             classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
                 home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
                 home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
@@ -138,13 +138,14 @@ if __name__ == "__main__":
                 Popen([home_dir_abs_path + "/bin/startup.sh"])
                 sleep(60)
                 for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
-                    call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
+                    call(["java", "-cp", classpath, mainClass, ssh.get('hostname'),
+                          ssh.get('port'), ssh.get('username'),
                           ssh.get('password'), pluginCmdsFilePath])
                 sleep(60)
                 call([home_dir_abs_path + "/bin/shutdown.sh"])
-        print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-              "%--%--%--%--%--%--%--%--%--\n")
-        print("%-- Ariane deployment is done !\n")
+            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
+                  "%--%--%--%--%--%--%--%--%--%--%--\n")
+            print("%-- Ariane deployment is done !\n")
 
     elif args.check:
         ariane_license(ctx_values["version"], True)
@@ -177,34 +178,36 @@ if __name__ == "__main__":
               "%--%--%--%--%--%--%--%--%--\n")
         print("%-- Ariane configuration is done !\n")
 
-        print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-              "%--%--%--%--%--%--%--%--%--")
-        print("\n%-- Ariane deployment")
-        classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
-            home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
-            home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
-            home_dir_abs_path + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
-        mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
-        ssh = virgoProcessor.get_user_region_ssh_params()
-        core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
-        Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
-        sleep(30)
-        call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
-              ssh.get('password'), core_cmds_file_path])
-        sleep(60)
-        call([home_dir_abs_path + "/bin/shutdown.sh"])
-        if len(pluginProcSgt.get_deploy_commands_files()) != 0:
-            sleep(20)
-            Popen([home_dir_abs_path + "/bin/startup.sh"])
-            sleep(60)
-            for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
-                call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
-                      ssh.get('password'), pluginCmdsFilePath])
+        if virgoProcessor is not None:
+            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
+                  "%--%--%--%--%--%--%--%--%--%--%--")
+            print("\n%-- Ariane deployment")
+            classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
+                home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
+                home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
+                home_dir_abs_path + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
+            mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
+            ssh = virgoProcessor.get_user_region_ssh_params()
+            core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
+            Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
+            sleep(30)
+            call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
+                  ssh.get('password'), core_cmds_file_path])
             sleep(60)
             call([home_dir_abs_path + "/bin/shutdown.sh"])
-        print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-              "%--%--%--%--%--%--%--%--%--\n")
-        print("%-- Ariane deployment is done !\n")
+            if len(pluginProcSgt.get_deploy_commands_files()) != 0:
+                sleep(20)
+                Popen([home_dir_abs_path + "/bin/startup.sh"])
+                sleep(60)
+                for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
+                    call(["java", "-cp", classpath, mainClass, ssh.get('hostname'),
+                          ssh.get('port'), ssh.get('username'),
+                          ssh.get('password'), pluginCmdsFilePath])
+                sleep(60)
+                call([home_dir_abs_path + "/bin/shutdown.sh"])
+            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
+                  "%--%--%--%--%--%--%--%--%--%--%--\n")
+            print("%-- Ariane deployment is done !\n")
 
     elif args.install is not None:
         ariane_license(ctx_values["version"], True)
