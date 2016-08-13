@@ -66,24 +66,24 @@ def ariane_license(ariane_version, silent):
         print("%-- See http://www.gnu.org/licenses/ to know more about AGPLv3 license.\n")
 
 
-def parse():
+def parse(dep_type):
     parser = argparse.ArgumentParser(description='Ariane installer')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-a', '--autoconfigure', help='Configure Ariane environment with predefined value in '
                                                      '$INSTALL_HOME/ariane/installer/resources/configvalues',
                        action='store_true')
     group.add_argument('-c', '--configure', help='Configure Ariane environment', action='store_true')
-    # todo: special action to validate the provided packages to install
-    group.add_argument('-i', '--install', help='Install Ariane plugins packages', nargs='+')
-    group.add_argument('-k', '--check', help="Check Ariane plugins packages", nargs="+")
-    group.add_argument('-l', '--list', help='List installed Ariane plugins', action='store_true')
-    # todo: special action to validate plugins id to uninstall
-    group.add_argument('-u', '--uninstall', help='Uninstall Ariane plugin', nargs=2,
-                       metavar=("plugin_name", "plugin_version"))
+    if dep_type == "mno" or dep_type == "frt":
+        # todo: special action to validate the provided packages to install
+        group.add_argument('-i', '--install', help='Install Ariane plugins packages', nargs='+')
+        group.add_argument('-k', '--check', help="Check Ariane plugins packages", nargs="+")
+        group.add_argument('-l', '--list', help='List installed Ariane plugins', action='store_true')
+        # todo: special action to validate plugins id to uninstall
+        group.add_argument('-u', '--uninstall', help='Uninstall Ariane plugin', nargs=2,
+                           metavar=("plugin_name", "plugin_version"))
     return parser.parse_args()
 
 if __name__ == "__main__":
-    args = parse()
 
     home_dir_abs_path = str(os.path.dirname(os.path.abspath(
         inspect.getfile(inspect.currentframe())
@@ -94,6 +94,8 @@ if __name__ == "__main__":
     ctx_json = open(home_dir_abs_path + "/ariane/id.json")
     ctx_values = json.load(ctx_json)
     ctx_json.close()
+
+    args = parse(ctx_values['deployment_type'])
 
     welcome()
 
@@ -128,26 +130,26 @@ if __name__ == "__main__":
             ssh = virgoProcessor.get_user_region_ssh_params()
             core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
             Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
-            sleep(30)
+            sleep(30 if ctx_values['deployment_type'] == "mno" else 15)
             call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
                   ssh.get('password'), core_cmds_file_path])
-            sleep(60)
+            sleep(60 if ctx_values['deployment_type'] == "mno" else 30)
             call([home_dir_abs_path + "/bin/shutdown.sh"])
             if len(pluginProcSgt.get_deploy_commands_files()) != 0:
-                sleep(20)
+                sleep(20 if ctx_values['deployment_type'] == "mno" else 5)
                 Popen([home_dir_abs_path + "/bin/startup.sh"])
-                sleep(60)
+                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
                 for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
                     call(["java", "-cp", classpath, mainClass, ssh.get('hostname'),
                           ssh.get('port'), ssh.get('username'),
                           ssh.get('password'), pluginCmdsFilePath])
-                sleep(60)
+                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
                 call([home_dir_abs_path + "/bin/shutdown.sh"])
             print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
                   "%--%--%--%--%--%--%--%--%--%--%--\n")
             print("%-- Ariane deployment is done !\n")
 
-    elif args.check:
+    elif (ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt") and args.check:
         ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
@@ -190,26 +192,27 @@ if __name__ == "__main__":
             ssh = virgoProcessor.get_user_region_ssh_params()
             core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
             Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
-            sleep(30)
+            sleep(30 if ctx_values['deployment_type'] == "mno" else 15)
             call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
                   ssh.get('password'), core_cmds_file_path])
-            sleep(60)
+            sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
             call([home_dir_abs_path + "/bin/shutdown.sh"])
             if len(pluginProcSgt.get_deploy_commands_files()) != 0:
-                sleep(20)
+                sleep(20 if ctx_values['deployment_type'] == "mno" else 5)
                 Popen([home_dir_abs_path + "/bin/startup.sh"])
-                sleep(60)
+                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
                 for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
                     call(["java", "-cp", classpath, mainClass, ssh.get('hostname'),
                           ssh.get('port'), ssh.get('username'),
                           ssh.get('password'), pluginCmdsFilePath])
-                sleep(60)
+                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
                 call([home_dir_abs_path + "/bin/shutdown.sh"])
             print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
                   "%--%--%--%--%--%--%--%--%--%--%--\n")
             print("%-- Ariane deployment is done !\n")
 
-    elif args.install is not None:
+    elif (ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt") and \
+            args.install is not None:
         ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
@@ -219,7 +222,7 @@ if __name__ == "__main__":
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
 
-    elif args.list:
+    elif (ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt") and args.list:
         ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
@@ -228,7 +231,8 @@ if __name__ == "__main__":
         print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
 
-    elif args.uninstall is not None:
+    elif (ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt") and \
+            args.uninstall is not None:
         ariane_license(ctx_values["version"], True)
         print("%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
               "%--%--%--%--%--%--%--%--%--\n")
