@@ -185,7 +185,7 @@ if __name__ == "__main__":
         print("%-- Ariane configuration is done !\n")
 
         if virgoProcessor is not None:
-            deploy_virgo
+            deploy_virgo()
 
     elif (ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt") and args.check:
         ariane_license(ctx_values["version"], True)
