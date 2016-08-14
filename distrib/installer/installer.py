@@ -21,6 +21,7 @@ import inspect
 import json
 import os
 from subprocess import call, Popen
+import tempfile
 from time import sleep
 from components.ComponentInstaller import ComponentProcessor
 from core.bus.BusProcessor import BusProcessor
@@ -83,6 +84,72 @@ def parse(dep_type):
                            metavar=("plugin_name", "plugin_version"))
     return parser.parse_args()
 
+def sleep_and_wait_logs(wait_string, wait_print):
+    log_file_path = home_dir_abs_path + "/serviceability/logs/log.log"
+    sleep_count = 0
+    go_ahead = False
+    while not go_ahead:
+        try:
+            log_file = open(log_file_path, "r")
+            for line in log_file:
+                if line.__contains__(wait_string):
+                    go_ahead = True
+            log_file.close()
+        except OSError as err:
+            if sleep_count > 2:
+                print("OS error: {0}".format(err))
+        if sleep_count == 0 or sleep_count % 5 == 0:
+            print(wait_print)
+        sleep_count += 1
+        sleep(1)
+
+def deploy_virgo():
+    print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
+          "%--%--%--%--%--%--%--%--%--%--%--")
+    print("\n%-- Ariane deployment")
+    classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
+        home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
+        home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
+        home_dir_abs_path + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
+    main_class = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
+    ssh = virgoProcessor.get_user_region_ssh_params()
+    temp_fd, temp_path = tempfile.mkstemp()
+    core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
+
+    with open(temp_path, "w") as outfile:
+        Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"], stdout=outfile, stderr=outfile)
+    sleep_and_wait_logs("Skipping entry /META-INF", "Wait Virgo to be started")
+
+    with open(temp_path, "w") as outfile:
+        call(["java", "-cp", classpath, main_class, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
+              ssh.get('password'), core_cmds_file_path], stdout=outfile, stderr=outfile)
+    sleep_and_wait_logs("Ariane Injector WAT Component is started", "Wait Ariane Core to be started")
+
+    print("Stop Ariane Core")
+    os.system("ps -aef | grep virgo | awk '{print $2}' | xargs kill -9")
+    os.remove(home_dir_abs_path + "/serviceability/logs/log.log")
+
+    if len(pluginProcSgt.get_plugin_to_be_deployed_min_desc()) != 0:
+        with open(temp_path, "w") as outfile:
+            Popen([home_dir_abs_path + "/bin/startup.sh"], stdout=outfile, stderr=outfile)
+        sleep_and_wait_logs("Ariane Injector WAT Component is started", "Wait Ariane Core to be started")
+
+        for pluginMinDesc in pluginProcSgt.get_plugin_to_be_deployed_min_desc():
+            with open(temp_path, "w") as outfile:
+                call(["java", "-cp", classpath, main_class, ssh.get('hostname'),
+                      ssh.get('port'), ssh.get('username'),
+                      ssh.get('password'), pluginMinDesc["deployCmdFP"]], stdout=outfile, stderr=outfile)
+            sleep_and_wait_logs(pluginMinDesc["waitingStartString"],
+                                "Wait plugin " + pluginMinDesc["id"] + " to be started")
+        print("Stop Ariane Core")
+        os.system("ps -aef | grep virgo | awk '{print $2}' | xargs kill -9")
+        os.remove(home_dir_abs_path + "/serviceability/logs/log.log")
+    os.close(temp_fd)
+    os.remove(temp_path)
+    print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
+          "%--%--%--%--%--%--%--%--%--%--%--\n")
+    print("%-- Ariane deployment is done !\n")
+
 if __name__ == "__main__":
 
     home_dir_abs_path = str(os.path.dirname(os.path.abspath(
@@ -118,36 +185,7 @@ if __name__ == "__main__":
         print("%-- Ariane configuration is done !\n")
 
         if virgoProcessor is not None:
-            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-                  "%--%--%--%--%--%--%--%--%--%--%--")
-            print("\n%-- Ariane deployment")
-            classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
-                home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
-                home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
-                home_dir_abs_path + \
-                "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
-            mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
-            ssh = virgoProcessor.get_user_region_ssh_params()
-            core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
-            Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
-            sleep(30 if ctx_values['deployment_type'] == "mno" else 15)
-            call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
-                  ssh.get('password'), core_cmds_file_path])
-            sleep(60 if ctx_values['deployment_type'] == "mno" else 30)
-            call([home_dir_abs_path + "/bin/shutdown.sh"])
-            if len(pluginProcSgt.get_deploy_commands_files()) != 0:
-                sleep(20 if ctx_values['deployment_type'] == "mno" else 5)
-                Popen([home_dir_abs_path + "/bin/startup.sh"])
-                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
-                for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
-                    call(["java", "-cp", classpath, mainClass, ssh.get('hostname'),
-                          ssh.get('port'), ssh.get('username'),
-                          ssh.get('password'), pluginCmdsFilePath])
-                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
-                call([home_dir_abs_path + "/bin/shutdown.sh"])
-            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-                  "%--%--%--%--%--%--%--%--%--%--%--\n")
-            print("%-- Ariane deployment is done !\n")
+            deploy_virgo
 
     elif (ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt") and args.check:
         ariane_license(ctx_values["version"], True)
@@ -181,35 +219,7 @@ if __name__ == "__main__":
         print("%-- Ariane configuration is done !\n")
 
         if virgoProcessor is not None:
-            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-                  "%--%--%--%--%--%--%--%--%--%--%--")
-            print("\n%-- Ariane deployment")
-            classpath = home_dir_abs_path + "/ariane/installer/lib/mina-core-2.0.7.jar:" + \
-                home_dir_abs_path + "/ariane/installer/lib/slf4j-api-1.6.6.jar:" + \
-                home_dir_abs_path + "/ariane/installer/lib/sshd-core-0.11.0.jar:" + \
-                home_dir_abs_path + "/ariane/installer/lib/net.echinopsii.ariane.community.installer.tools-0.1.0.jar"
-            mainClass = "net.echinopsii.ariane.community.install.tools.tools.sshcli"
-            ssh = virgoProcessor.get_user_region_ssh_params()
-            core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
-            Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"])
-            sleep(30 if ctx_values['deployment_type'] == "mno" else 15)
-            call(["java", "-cp", classpath, mainClass, ssh.get('hostname'), ssh.get('port'), ssh.get('username'),
-                  ssh.get('password'), core_cmds_file_path])
-            sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
-            call([home_dir_abs_path + "/bin/shutdown.sh"])
-            if len(pluginProcSgt.get_deploy_commands_files()) != 0:
-                sleep(20 if ctx_values['deployment_type'] == "mno" else 5)
-                Popen([home_dir_abs_path + "/bin/startup.sh"])
-                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
-                for pluginCmdsFilePath in pluginProcSgt.get_deploy_commands_files():
-                    call(["java", "-cp", classpath, mainClass, ssh.get('hostname'),
-                          ssh.get('port'), ssh.get('username'),
-                          ssh.get('password'), pluginCmdsFilePath])
-                sleep(60 if ctx_values['deployment_type'] == "mno" else 15)
-                call([home_dir_abs_path + "/bin/shutdown.sh"])
-            print("\n%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--%--"
-                  "%--%--%--%--%--%--%--%--%--%--%--\n")
-            print("%-- Ariane deployment is done !\n")
+            deploy_virgo()
 
     elif (ctx_values['deployment_type'] == "mno" or ctx_values['deployment_type'] == "frt") and \
             args.install is not None:

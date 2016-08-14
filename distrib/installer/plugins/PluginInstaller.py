@@ -172,12 +172,16 @@ class PluginProcessor:
         self.idmDBConfig = idm_db_config
         self.silent = silent
 
-    def get_deploy_commands_files(self):
+    def get_plugin_to_be_deployed_min_desc(self):
         ret_list = []
         for description in PluginInstaller.get_installed_plugins_description(self.homePath):
             for item in description.environmentItems:
                 if item.deployCmdFP is not None:
-                    ret_list.append(item.deployCmdFP)
+                    ret_list.append({
+                        "id": description.id,
+                        "deployCmdFP": item.deployCmdFP,
+                        "waitingStartString": description.waitingStartString
+                    })
         return ret_list
 
     def process(self):
