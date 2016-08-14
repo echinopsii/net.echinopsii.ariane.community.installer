@@ -115,6 +115,8 @@ def deploy_virgo():
     ssh = virgoProcessor.get_user_region_ssh_params()
     temp_fd, temp_path = tempfile.mkstemp()
     core_cmds_file_path = home_dir_abs_path + "/ariane/installer/resources/virgoscripts/deploy-components.vsh"
+    if os.path.isfile(home_dir_abs_path + "/serviceability/logs/log.log"):
+        os.remove(home_dir_abs_path + "/serviceability/logs/log.log")
 
     with open(temp_path, "w") as outfile:
         Popen([home_dir_abs_path + "/bin/startup.sh", "-clean"], stdout=outfile, stderr=outfile)
